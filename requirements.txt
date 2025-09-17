@@ -7,4 +7,5 @@ xgboost
 category-encoders
 flask
 gunicorn
+shap
 -e .
