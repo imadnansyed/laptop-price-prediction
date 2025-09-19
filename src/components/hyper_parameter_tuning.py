@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import os, sys, joblib
+import os, sys, pickle
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
@@ -9,10 +9,12 @@ from src.utils.exception import CustomException
 from src.utils.logger import logging
 import pandas as pd
 
+from src.utils.utils import save_obj
+
 @dataclass
 class HyperParatuningConfig:
-    training_pipeline_path: str = os.path.join("artifacts", "pipelines", "training_pipeline.pkl")
     prediction_pipeline_path: str = os.path.join("artifacts", "pipelines", "prediction_pipeline.pkl")
+    best_preprocessor_pipeline_path: str = os.path.join("artifacts", "pipelines", "best_preprocessor_pipeline.pkl")
 
 class HyperParaTuning:
     def __init__(self):
@@ -26,12 +28,12 @@ class HyperParaTuning:
         try:
             # 1. Load dataset
             df = pd.read_csv(df_path)
-            X = df.drop(columns=['price'])
+            X = df.drop(columns=['price', "weight"])
             y = df['price']
 
             # 2. Load preprocessors
-            ordinal_preprocessor = joblib.load(preprocessors_paths[0])
-            target_preprocessor = joblib.load(preprocessors_paths[1])
+            ordinal_preprocessor = pickle.load(open(preprocessors_paths[0], 'rb'))
+            target_preprocessor = pickle.load(open(preprocessors_paths[1], 'rb'))
             
             preprocessors = {
                 "ordinal": ordinal_preprocessor,
@@ -89,12 +91,13 @@ class HyperParaTuning:
                 if score > best_score:
                     best_score = score
                     best_pipeline = best_estimator
+                    
+            os.makedirs(os.path.dirname(self.config.prediction_pipeline_path), exist_ok=True)
+            save_obj(self.config.prediction_pipeline_path, best_pipeline)
+            
+            best_preprocessor = best_estimator.named_steps["preprocessor"]
+            save_obj(self.config.best_preprocessor_pipeline_path, best_preprocessor)
 
-            os.makedirs(os.path.dirname(self.config.training_pipeline_path), exist_ok=True)
-            joblib.dump(best_pipeline, self.config.training_pipeline_path)
-            joblib.dump(best_pipeline, self.config.prediction_pipeline_path)
-
-            logging.info(f"Best pipeline saved at {self.config.training_pipeline_path}")
             logging.info(f"Prediction pipeline saved at {self.config.prediction_pipeline_path}")
 
             return best_pipeline, best_score
@@ -102,3 +105,5 @@ class HyperParaTuning:
         except Exception as e:
             logging.error("Error occurred during hyperparameter tuning.", exc_info=True)
             raise CustomException(e, sys)
+        
+

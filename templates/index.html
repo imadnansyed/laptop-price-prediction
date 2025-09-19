@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Laptop Price Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        select, input[type="number"], input[type="text"] {
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        input[type="submit"] {
+            margin-top: 25px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .prediction {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 20px;
+            color: #007BFF;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Laptop Price Predictor</h2>
+
+        <form action="/predict" method="post">
+
+            <label>Company:</label>
+            <select name="company">
+                <option value="">--Select--</option>
+                {% for c in ['Apple','HP','Acer','Asus','Dell','Lenovo','Chuwi','MSI','Microsoft','Toshiba','Huawei','Xiaomi','Vero','Mediacom','Samsung','Google','Fujitsu','Razer','LG'] %}
+                    <option {% if request.form.get('company')==c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Type Name:</label>
+            <select name="typename">
+                <option value="">--Select--</option>
+                {% for t in ['Ultrabook','Notebook','Netbook','Gaming','2 in 1 Convertible','Workstation'] %}
+                    <option {% if request.form.get('typename')==t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+
+            <label>RAM (GB):</label>
+            <select name="ram">
+                {% for r in [8,16,4,2,12,6,32,24] %}
+                    <option {% if request.form.get('ram')==r|string %}selected{% endif %}>{{ r }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Screen Size (inches):</label>
+            <input type="number" step="0.1" name="screen_size" value="{{ request.form.get('screen_size','') }}">
+
+            <label>Resolution (e.g., 1920x1080):</label>
+            <input type="text" name="resolution" value="{{ request.form.get('resolution','') }}">
+
+            <label>CPU Brand:</label>
+            <select name="cpu_brand">
+                {% for cpu in ['Intel Core i5','Intel Core i7','AMD Processor','Intel Core i3','Other Intel Processor'] %}
+                    <option {% if request.form.get('cpu_brand')==cpu %}selected{% endif %}>{{ cpu }}</option>
+                {% endfor %}
+            </select>
+
+            <label>SSD (GB):</label>
+            <select name="ssd">
+                {% for s in [128,0,256,512,32,64,16,1024,180,8] %}
+                    <option {% if request.form.get('ssd')==s|string %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+
+            <label>HDD (GB):</label>
+            <select name="hdd">
+                {% for h in [0,500,1024,2048,32,128,508] %}
+                    <option {% if request.form.get('hdd')==h|string %}selected{% endif %}>{{ h }}</option>
+                {% endfor %}
+            </select>
+
+            <label>GPU Name:</label>
+            <select name="gpu_name">
+                {% for gpu in ['Intel','AMD','Nvidia'] %}
+                    <option {% if request.form.get('gpu_name')==gpu %}selected{% endif %}>{{ gpu }}</option>
+                {% endfor %}
+            </select>
+
+            <label>OS:</label>
+            <select name="os">
+                {% for o in ['Mac','Others/No OS/Linux','Windows'] %}
+                    <option {% if request.form.get('os')==o %}selected{% endif %}>{{ o }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="submit" value="Predict">
+
+        </form>
+
+        {% if prediction %}
+            <div class="prediction">
+                Predicted Price: {{ prediction }} PKR
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

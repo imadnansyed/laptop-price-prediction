@@ -1,7 +1,6 @@
 import sys
 import os
 import pandas as pd
-import numpy as np
 from dataclasses import dataclass
 from src.utils.exception import CustomException
 from src.utils.logger import logging
@@ -52,10 +51,12 @@ class FeatureSelection:
 
             merged.set_index('feature', inplace=True)
             mean_scores = merged.mean(axis=1)
-            low_features = mean_scores.nsmallest(3).index.tolist()
+            
+            columns_to_drop = ["touch_screen", "flash", "ips"]
 
-            logging.info(f"Dropping low-importance features: {low_features}")
-            return df.drop(columns=low_features), low_features, merged
+            logging.info(f"Dropping low-importance features: {columns_to_drop}")
+            print(f"Dropping low-importance features: {columns_to_drop} - remaining features : {df.drop(columns=columns_to_drop).columns.tolist()}")
+            return df.drop(columns = columns_to_drop), columns_to_drop, merged
 
         except Exception as e:
             raise CustomException(e, sys)

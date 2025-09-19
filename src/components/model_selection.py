@@ -27,7 +27,7 @@ class ModelSelection:
             df = pd.read_csv(df_path)
             logging.info(f"Dataset loaded successfully with shape: {df.shape}")
 
-            X = df.drop(columns=['price'])
+            X = df.drop(columns=['price', "weight"])
             y = df['price']
             logging.info("Split dataset into X (features) and y (target).")
 
